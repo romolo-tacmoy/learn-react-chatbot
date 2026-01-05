@@ -11,13 +11,42 @@
     <script src="https://unpkg.com/supersimpledev/react.js"></script>
     <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
 
     <script type="text/babel">                              
-        function ChatInput() {
+        function ChatInput({chatMessages, setChatMessages}) { 
+            const [textInput, setTextInput] = React.useState('');
+
+            function handleTextInput(event) {
+                setTextInput(event.target.value);                         
+            }
+
+            function handleSendInput() {   
+                const temp = [...chatMessages, 
+                    {
+                        id: crypto.randomUUID(),
+                        message: textInput,
+                        sender: 'user'                                                                                          
+                    }
+                ];
+
+                setChatMessages(temp); 
+                
+                const response = Chatbot.getResponse(textInput);                                     
+
+                setChatMessages([...temp, 
+                    {
+                        id: crypto.randomUUID(),
+                        message: response,
+                        sender: 'robot'                                                                                          
+                    }
+                ]); 
+            }
+
             return (                             
                 <>
-                    <input type="text" placeholder="Send a message to Chatbot" size="30" /> 
-                    <button type="submit">Send</button>                                           
+                    <input type="text" value={textInput} onChange={handleTextInput} placeholder="Send a message to Chatbot" size="30" /> 
+                    <button type="submit" onClick={handleSendInput}>Send</button>                                           
                 </>                      
             )
         };   
@@ -32,46 +61,30 @@
             )
         };
 
-        function ChatMessages() {
-            const chatMessages = [{
-                key: 1,
-                message: 'Hello ChatBot',
-                sender: 'user'
-            }, {
-                key: 2,
-                message: 'Hello! How can I help you?',
-                sender: 'robot'
-            }, {
-                key: 3,
-                message: 'Can you get me todays date?',
-                sender: 'user'
-            }, {
-                key: 4,
-                message: 'Today is September 27',
-                sender: 'robot'                
-            }]
-
+        function ChatMessages({chatMessages}) {                    
             return (
-                <>
+                <>                    
                     {chatMessages.map((chatMessage) => 
-                        <ChatMessage message={chatMessage.message} sender={chatMessage.sender} key={chatMessage.key} />                        
+                        <ChatMessage message={chatMessage.message} sender={chatMessage.sender} key={chatMessage.id} />                 
                     )}
                 </>    
             )
         };
         
         function App() {
+            const [chatMessages, setChatMessages] = React.useState([]);   
+
             return (
                 <> 
-                    <ChatInput />                      
-                    <ChatMessages />
+                    <ChatInput chatMessages={chatMessages} setChatMessages={setChatMessages}/>                      
+                    <ChatMessages chatMessages={chatMessages} />
                 </>
-            )          
+            )                    
         };       
 
         const container = document.querySelector('.js-container');
         ReactDOM.createRoot(container).render(<App />);
-
+        
     </script>
 </body>
 </html>
