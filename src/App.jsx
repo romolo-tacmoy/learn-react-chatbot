@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Chatbot } from "supersimpledev";
 import UserProfileImage from "./assets/user.png";
 import RobotProfileImage from "./assets/robot.png";
+import { ThreeDot } from "react-loading-indicators";
 import "./App.css";
 
 function App() {
@@ -80,14 +81,36 @@ function ChatInput({ chatMessages, setChatMessages }) {
 }
 
 function ChatMessage({ message, sender }) {
+  const [isTimeUp, setIsTimeUp] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsTimeUp(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className={sender === "user" ? "user-sender" : "robot-sender"}>
       {sender === "robot" && (
-        <img className="sender-image" src={RobotProfileImage} />
+        <>
+          <img className="sender-image" src={RobotProfileImage} />
+          {isTimeUp ? (
+            <div className="sender-message">{message}</div>
+          ) : (
+            <div className="sender-message">
+              <ThreeDot color="#198754" size="small" text="" textColor="" />
+            </div>
+          )}
+          ;
+        </>
       )}
-      <div className="sender-message">{message}</div>
+
       {sender === "user" && (
-        <img className="sender-image" src={UserProfileImage} />
+        <>
+          <div className="sender-message">{message}</div>
+          <img className="sender-image" src={UserProfileImage} />
+        </>
       )}
     </div>
   );
@@ -101,6 +124,7 @@ function ChatMessages({ chatMessages }) {
       chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   }, [chatMessages]);
+
   return (
     <div ref={chatMessagesRef} className="chat-messages-container">
       {chatMessages.map((chatMessage) => (
