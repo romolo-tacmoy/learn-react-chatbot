@@ -8,7 +8,18 @@ export function ChatInput({ chatMessages, setChatMessages }) {
     setTextInput(event.target.value);
   }
 
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      handleSendInput();
+    }
+  }
+
   function handleSendInput() {
+    if (!textInput.trim()) {
+      alert("Please! Enter something...");
+      return;
+    }
+
     const temp = [
       ...chatMessages,
       {
@@ -41,6 +52,7 @@ export function ChatInput({ chatMessages, setChatMessages }) {
         type="text"
         value={textInput}
         onChange={handleTextInput}
+        onKeyDown={handleKeyDown}
         placeholder="Send a message to Chatbot"
         size="30"
       />
